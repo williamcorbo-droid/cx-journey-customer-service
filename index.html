@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Journey in Customer Service — Nubank</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+        :root {
+            --nu-purple: #820AD1;
+            --nu-purple-dark: #6B00B3;
+            --nu-purple-light: #A43FE2;
+            --nu-purple-bg: #F5E6FF;
+            --nu-dark: #111111;
+            --nu-gray-900: #1A1A1A;
+            --nu-gray-800: #2D2D2D;
+            --nu-gray-700: #3D3D3D;
+            --nu-gray-600: #555555;
+            --nu-gray-400: #999999;
+            --nu-gray-200: #E0E0E0;
+            --nu-gray-100: #F0F0F0;
+            --nu-white: #FFFFFF;
+            --nu-warning: #FF6B35;
+            --nu-success: #00A868;
+            --nu-info: #1A73E8;
+            --gradient-hero: linear-gradient(135deg, #1A0030 0%, #3D0070 40%, #820AD1 100%);
+            --gradient-card: linear-gradient(145deg, rgba(130, 10, 209, 0.08) 0%, rgba(130, 10, 209, 0.02) 100%);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--nu-dark); color: var(--nu-white); overflow-x: hidden; }
+
+        .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; padding: 0 48px; height: 64px; display: flex; align-items: center; justify-content: space-between; background: rgba(17, 17, 17, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid rgba(130, 10, 209, 0.15); transition: all 0.3s ease; }
+        .nav-logo { display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 18px; color: var(--nu-white); text-decoration: none; }
+        .nav-logo svg { width: 32px; height: 32px; }
+        .nav-links { display: flex; gap: 8px; }
+        .nav-links a { color: var(--nu-gray-400); text-decoration: none; font-size: 13px; font-weight: 500; padding: 6px 14px; border-radius: 20px; transition: all 0.25s ease; }
+        .nav-links a:hover, .nav-links a.active { color: var(--nu-white); background: rgba(130, 10, 209, 0.2); }
+
+        .hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--gradient-hero); position: relative; overflow: hidden; padding: 120px 48px 80px; }
+        .hero::before { content: ''; position: absolute; top: -50%; right: -30%; width: 80%; height: 200%; background: radial-gradient(ellipse, rgba(130, 10, 209, 0.3) 0%, transparent 70%); animation: heroGlow 8s ease-in-out infinite alternate; }
+        .hero::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 200px; background: linear-gradient(to top, var(--nu-dark), transparent); }
+        @keyframes heroGlow { 0% { transform: translate(0, 0) scale(1); opacity: 0.3; } 100% { transform: translate(-5%, 5%) scale(1.1); opacity: 0.5; } }
+        .hero-content { position: relative; z-index: 2; max-width: 900px; text-align: center; }
+        .hero h1 { font-size: clamp(40px, 6vw, 72px); font-weight: 900; line-height: 1.05; letter-spacing: -2px; margin-bottom: 24px; animation: fadeInUp 0.8s ease 0.1s forwards; opacity: 0; }
+        .hero h1 span { background: linear-gradient(135deg, #D4A5FF, #FFFFFF); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .hero p { font-size: 18px; line-height: 1.7; color: rgba(255, 255, 255, 0.65); max-width: 600px; margin: 0 auto 48px; animation: fadeInUp 0.8s ease 0.2s forwards; opacity: 0; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+        .scroll-indicator { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); z-index: 3; display: flex; flex-direction: column; align-items: center; gap: 8px; color: rgba(255, 255, 255, 0.4); font-size: 12px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; animation: fadeInUp 0.8s ease 0.5s forwards; opacity: 0; }
+        .scroll-indicator .arrow { width: 24px; height: 24px; border-right: 2px solid rgba(255, 255, 255, 0.4); border-bottom: 2px solid rgba(255, 255, 255, 0.4); transform: rotate(45deg); animation: scrollBounce 2s ease-in-out infinite; }
+        @keyframes scrollBounce { 0%, 100% { transform: rotate(45deg) translate(0, 0); } 50% { transform: rotate(45deg) translate(5px, 5px); } }
+
+        .timeline-overview { padding: 100px 48px; background: var(--nu-dark); position: relative; }
+        .section-header { text-align: center; margin-bottom: 72px; }
+        .section-label { display: inline-block; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 3px; color: var(--nu-purple-light); margin-bottom: 16px; }
+        .section-title { font-size: clamp(32px, 4vw, 48px); font-weight: 800; letter-spacing: -1px; margin-bottom: 16px; }
+        .section-subtitle { font-size: 16px; color: var(--nu-gray-400); max-width: 560px; margin: 0 auto; line-height: 1.6; }
+
+        .timeline-strip { display: flex; align-items: stretch; gap: 0; max-width: 1200px; margin: 0 auto; position: relative; }
+        .timeline-step { flex: 1; text-align: center; padding: 32px 16px; position: relative; cursor: pointer; transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); border-radius: 16px; }
+        .timeline-step:hover { background: rgba(130, 10, 209, 0.08); transform: translateY(-4px); }
+        .timeline-step-number { width: 48px; height: 48px; border-radius: 50%; background: var(--nu-gray-800); border: 2px solid var(--nu-gray-700); display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; margin: 0 auto 16px; transition: all 0.4s ease; position: relative; z-index: 2; }
+        .timeline-step:hover .timeline-step-number { background: var(--nu-purple); border-color: var(--nu-purple-light); box-shadow: 0 0 24px rgba(130, 10, 209, 0.4); }
+        .timeline-step-title { font-size: 14px; font-weight: 600; margin-bottom: 8px; transition: color 0.3s ease; }
+        .timeline-step:hover .timeline-step-title { color: var(--nu-purple-light); }
+        .timeline-step-desc { font-size: 12px; color: var(--nu-gray-400); line-height: 1.5; }
+        .timeline-step:not(:last-child)::after { content: ''; position: absolute; top: 55px; right: -2px; width: calc(100% - 64px); height: 2px; background: linear-gradient(90deg, var(--nu-gray-700), var(--nu-gray-800)); left: calc(50% + 32px); z-index: 1; }
+
+        .stage { padding: 120px 48px; position: relative; overflow: hidden; }
+        .stage:nth-child(even) { background: var(--nu-gray-900); }
+        .stage-inner { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+        .stage:nth-child(even) .stage-inner { direction: rtl; }
+        .stage:nth-child(even) .stage-inner > * { direction: ltr; }
+        .stage-content { opacity: 0; transform: translateY(40px); transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+        .stage-content.visible { opacity: 1; transform: translateY(0); }
+        .stage-number { display: inline-flex; align-items: center; gap: 12px; font-size: 13px; font-weight: 600; color: var(--nu-purple-light); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px; }
+        .stage-number::before { content: ''; width: 32px; height: 2px; background: var(--nu-purple); }
+        .stage-title { font-size: clamp(28px, 3.5vw, 40px); font-weight: 800; letter-spacing: -0.5px; margin-bottom: 20px; line-height: 1.15; }
+        .stage-description { font-size: 16px; color: var(--nu-gray-400); line-height: 1.7; margin-bottom: 32px; }
+
+        .insights-grid { display: flex; flex-direction: column; gap: 12px; }
+        .insight-card { background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 12px; padding: 20px 24px; transition: all 0.3s ease; display: flex; gap: 16px; align-items: flex-start; }
+        .insight-card:hover { background: rgba(130, 10, 209, 0.08); border-color: rgba(130, 10, 209, 0.2); transform: translateX(8px); }
+        .insight-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+        .insight-icon.pain { background: rgba(255, 107, 53, 0.15); color: var(--nu-warning); }
+        .insight-icon.behavior { background: rgba(26, 115, 232, 0.15); color: var(--nu-info); }
+        .insight-icon.gap { background: rgba(255, 193, 7, 0.15); color: #FFC107; }
+        .insight-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+        .insight-label.pain { color: var(--nu-warning); }
+        .insight-label.behavior { color: var(--nu-info); }
+        .insight-label.gap { color: #FFC107; }
+        .insight-text { font-size: 14px; color: var(--nu-gray-200); line-height: 1.5; }
+
+        .stage-visual { display: flex; justify-content: center; align-items: center; position: relative; opacity: 0; transform: translateY(40px); transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.2s; }
+        .stage-visual.visible { opacity: 1; transform: translateY(0); }
+
+        .phone-mockup { width: 280px; background: #1C1C1E; border-radius: 44px; padding: 8px; box-shadow: 0 0 0 1px rgba(255,255,255,0.08), inset 0 0 0 2px rgba(255,255,255,0.05), 0 20px 60px rgba(0,0,0,0.6), 0 0 80px rgba(130,10,209,0.12); position: relative; overflow: hidden; transition: transform 0.5s ease; }
+        .phone-mockup:hover { transform: scale(1.02) rotateY(-2deg); }
+        .phone-screen { border-radius: 36px; overflow: hidden; background: var(--nu-white); aspect-ratio: 9/19.5; display: flex; flex-direction: column; }
+        .phone-notch { height: 32px; background: inherit; position: relative; z-index: 5; display: flex; align-items: center; justify-content: center; }
+        .phone-notch::after { content: ''; width: 80px; height: 24px; background: #1C1C1E; border-radius: 14px; display: block; }
+
+        .screen-home { background: #FFFFFF; }
+        .screen-home .phone-notch { background: #820AD1; }
+        .screen-home .phone-header { background: linear-gradient(180deg, #820AD1, #6B00B3); padding: 0 20px 20px; color: white; }
+        .screen-home .greeting { font-size: 18px; font-weight: 700; margin-bottom: 2px; }
+        .screen-home .sub { font-size: 11px; opacity: 0.75; }
+        .screen-home .balance-section { padding: 20px; }
+        .screen-home .balance-label { font-size: 12px; color: #666; font-weight: 500; }
+        .screen-home .balance-value { font-size: 24px; font-weight: 700; color: #111; margin-top: 4px; letter-spacing: -0.5px; }
+        .screen-home .balance-eye { display: inline-block; margin-left: 8px; font-size: 14px; color: #999; }
+        .screen-home .shortcuts { display: flex; justify-content: space-around; padding: 8px 16px 16px; }
+        .screen-home .shortcut-item { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+        .screen-home .shortcut-icon { width: 44px; height: 44px; background: #F4ECFB; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+        .screen-home .shortcut-label { font-size: 10px; color: #555; font-weight: 500; }
+        .screen-home .card-section { margin: 0 20px; padding: 16px; background: #F8F5FB; border-radius: 12px; }
+        .screen-home .card-label { font-size: 11px; color: #666; font-weight: 500; }
+        .screen-home .card-value { font-size: 15px; font-weight: 700; color: #111; margin-top: 4px; }
+        .screen-home .card-sub { font-size: 10px; color: #999; margin-top: 2px; }
+        .phone-bottom-nav { margin-top: auto; display: flex; justify-content: space-around; align-items: center; padding: 10px 0; border-top: 1px solid #F0F0F0; background: white; }
+        .phone-bottom-nav .nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 9px; color: #999; font-weight: 500; }
+        .phone-bottom-nav .nav-item.active { color: #820AD1; }
+        .phone-bottom-nav .nav-icon { font-size: 16px; }
+
+        .screen-hub { background: #FFFFFF; }
+        .screen-hub .phone-notch { background: #FFFFFF; }
+        .screen-hub .hub-header { padding: 8px 20px 12px; display: flex; align-items: center; gap: 12px; }
+        .screen-hub .hub-back { font-size: 16px; color: #820AD1; }
+        .screen-hub .hub-title { font-size: 16px; font-weight: 700; color: #111; }
+        .screen-hub .hub-greeting { padding: 8px 20px 16px; font-size: 18px; font-weight: 700; color: #111; line-height: 1.3; }
+        .screen-hub .hub-search { margin: 0 20px 16px; background: #F4ECFB; border-radius: 28px; padding: 12px 18px; font-size: 13px; color: #888; display: flex; align-items: center; gap: 10px; }
+        .screen-hub .hub-shortcuts { display: flex; justify-content: space-around; padding: 0 16px 16px; }
+        .screen-hub .hub-shortcut { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+        .screen-hub .hub-shortcut-icon { width: 44px; height: 44px; background: #F4ECFB; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+        .screen-hub .hub-shortcut-label { font-size: 9px; color: #555; text-align: center; max-width: 56px; font-weight: 500; }
+        .screen-hub .hub-categories { padding: 0 20px; }
+        .screen-hub .hub-category { padding: 14px 0; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; }
+        .screen-hub .hub-cat-name { font-size: 14px; font-weight: 500; color: #111; }
+        .screen-hub .hub-cat-desc { font-size: 10px; color: #999; margin-top: 2px; }
+        .screen-hub .hub-cat-arrow { color: #ccc; font-size: 14px; }
+
+        .screen-channel { position: relative; }
+        .screen-channel .overlay { position: absolute; bottom: 0; left: 0; right: 0; background: white; border-radius: 20px 20px 0 0; padding: 28px 20px; box-shadow: 0 -10px 40px rgba(0,0,0,0.15); z-index: 2; }
+        .screen-channel .overlay-title { font-size: 16px; font-weight: 700; color: #111; margin-bottom: 24px; line-height: 1.3; }
+        .screen-channel .channel-options { display: flex; justify-content: space-around; }
+        .screen-channel .channel-option { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        .screen-channel .channel-icon { width: 52px; height: 52px; background: #F4ECFB; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+        .screen-channel .channel-label { font-size: 10px; color: #555; text-align: center; max-width: 64px; line-height: 1.3; font-weight: 500; }
+        .screen-channel .bg-blur { filter: blur(2px) brightness(0.5); padding: 20px; }
+
+        .screen-chat { background: #FFFFFF; }
+        .screen-chat .phone-notch { background: #FFFFFF; }
+        .screen-chat .chat-header { background: white; padding: 8px 20px 12px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #F0F0F0; }
+        .screen-chat .chat-header .chat-back { font-size: 16px; color: #820AD1; }
+        .screen-chat .chat-header-title { font-size: 14px; font-weight: 600; color: #111; }
+        .screen-chat .chat-body { padding: 16px; flex: 1; display: flex; flex-direction: column; gap: 10px; background: #F8F5FB; }
+        .chat-bubble { max-width: 82%; padding: 10px 14px; border-radius: 18px; font-size: 12px; line-height: 1.5; }
+        .chat-bubble.bot { background: white; color: #333; align-self: flex-start; border-bottom-left-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+        .chat-bubble.user { background: var(--nu-purple); color: white; align-self: flex-end; border-bottom-right-radius: 6px; }
+        .screen-chat .chat-input { background: white; padding: 10px 16px; display: flex; align-items: center; gap: 8px; border-top: 1px solid #F0F0F0; }
+        .chat-input-field { flex: 1; background: #F5F5F5; border-radius: 20px; padding: 8px 14px; font-size: 12px; color: #999; }
+        .chat-input-send { width: 32px; height: 32px; background: #820AD1; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; }
+
+        .screen-human .chat-bubble.agent { background: white; color: #333; align-self: flex-start; border-bottom-left-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+        .screen-human .agent-name { font-size: 10px; font-weight: 600; color: #820AD1; margin-bottom: 4px; }
+
+        .screen-survey { background: white; }
+        .screen-survey .phone-notch { background: white; }
+        .screen-survey .survey-content { padding: 20px; text-align: center; }
+        .screen-survey .survey-title { font-size: 16px; font-weight: 700; color: #111; line-height: 1.4; margin-bottom: 24px; }
+        .screen-survey .nps-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-bottom: 8px; }
+        .screen-survey .nps-btn { width: 34px; height: 34px; border-radius: 50%; background: #F4ECFB; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: #555; margin: 0 auto; }
+        .screen-survey .nps-btn.selected { background: var(--nu-purple); color: white; }
+        .screen-survey .nps-labels { display: flex; justify-content: space-between; font-size: 9px; color: #999; margin-top: 4px; margin-bottom: 20px; }
+        .screen-survey .survey-btn { background: var(--nu-purple); color: white; border: none; border-radius: 28px; padding: 14px; width: 100%; font-size: 14px; font-weight: 600; }
+
+        .screen-ouvidoria { background: white; text-align: center; }
+        .screen-ouvidoria .phone-notch { background: white; }
+        .screen-ouvidoria .ouvidoria-content { padding: 32px 24px; }
+        .screen-ouvidoria .ouvidoria-icon { width: 72px; height: 72px; margin: 0 auto 20px; background: linear-gradient(135deg, #F4ECFB, #E8D5F5); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; }
+        .screen-ouvidoria .ouvidoria-title { font-size: 18px; font-weight: 700; color: #111; margin-bottom: 12px; }
+        .screen-ouvidoria .ouvidoria-desc { font-size: 13px; color: #666; line-height: 1.6; margin-bottom: 28px; }
+        .screen-ouvidoria .ouvidoria-btn { background: var(--nu-purple); color: white; border: none; border-radius: 28px; padding: 14px 32px; font-size: 14px; font-weight: 600; width: 100%; margin-bottom: 12px; }
+        .screen-ouvidoria .ouvidoria-btn-secondary { background: transparent; color: #111; border: none; font-size: 14px; font-weight: 600; padding: 14px; }
+
+        .footer { padding: 80px 48px 40px; background: var(--nu-dark); border-top: 1px solid rgba(255,255,255,0.06); text-align: center; }
+        .footer-logo { margin-bottom: 24px; }
+        .footer p { color: var(--nu-gray-600); font-size: 13px; line-height: 1.6; }
+        .footer .footer-note { margin-top: 32px; padding-top: 32px; border-top: 1px solid rgba(255,255,255,0.06); font-size: 12px; color: var(--nu-gray-700); }
+
+        .fade-in { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+        .fade-in.visible { opacity: 1; transform: translateY(0); }
+
+        @media (max-width: 768px) {
+            .nav { padding: 0 24px; }
+            .nav-links { display: none; }
+            .hero { padding: 100px 24px 80px; }
+            .timeline-overview { padding: 60px 24px; }
+            .timeline-strip { flex-direction: column; gap: 8px; }
+            .timeline-step:not(:last-child)::after { display: none; }
+            .stage { padding: 60px 24px; }
+            .stage-inner { grid-template-columns: 1fr; gap: 40px; }
+            .stage:nth-child(even) .stage-inner { direction: ltr; }
+            .phone-mockup { width: 240px; }
+            .footer { padding: 60px 24px 32px; }
+        }
+
+        .channel-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+        .channel-tab { padding: 8px 18px; border-radius: 24px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04); color: var(--nu-gray-400); transition: all 0.3s ease; }
+        .channel-tab:hover { border-color: rgba(130, 10, 209, 0.3); color: var(--nu-gray-200); }
+        .channel-tab.active { background: var(--nu-purple); border-color: var(--nu-purple); color: var(--nu-white); }
+        .channel-content { display: none; }
+        .channel-content.active { display: flex; flex-direction: column; gap: 12px; }
+    </style>
+</head>
+<body>
+
+<nav class="nav">
+    <a href="#" class="nav-logo">
+        <svg viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="#820AD1"/><text x="7" y="23" font-size="18" font-weight="bold" fill="white" font-family="Inter, sans-serif">Nu</text></svg>
+        CX Journey
+    </a>
+    <div class="nav-links">
+        <a href="#overview">Overview</a>
+        <a href="#stage-1">Home</a>
+        <a href="#stage-2">Service Hub</a>
+        <a href="#stage-3">Channel</a>
+        <a href="#stage-4">Input</a>
+        <a href="#stage-5">Chatbot</a>
+        <a href="#stage-6">Human</a>
+        <a href="#stage-7">Survey</a>
+        <a href="#stage-8">Ombudsman</a>
+    </div>
+</nav>
+
+<section class="hero">
+    <div class="hero-content">
+        <h1>Customer Journey<br><span>in Customer Service</span></h1>
+        <p>An overview of the main pain points, needs, and expectations that PF (non-UV) customers experience when seeking support from Nubank.</p>
+    </div>
+    <div class="scroll-indicator">
+        <span>Explore</span>
+        <div class="arrow"></div>
+    </div>
+</section>
+
+<section class="timeline-overview" id="overview">
+    <div class="section-header fade-in">
+        <div class="section-label">Overview</div>
+        <h2 class="section-title">The 8 stages of the journey</h2>
+        <p class="section-subtitle">From the first tap on the app to the final resolution — every moment matters.</p>
+    </div>
+    <div class="timeline-strip fade-in">
+        <a href="#stage-1" class="timeline-step"><div class="timeline-step-number">1</div><div class="timeline-step-title">App Home</div><div class="timeline-step-desc">Journey starting point</div></a>
+        <a href="#stage-2" class="timeline-step"><div class="timeline-step-number">2</div><div class="timeline-step-title">Service Hub</div><div class="timeline-step-desc">Help Center</div></a>
+        <a href="#stage-3" class="timeline-step"><div class="timeline-step-number">3</div><div class="timeline-step-title">Channel Choice</div><div class="timeline-step-desc">Chat, Tickets or Sign Language</div></a>
+        <a href="#stage-4" class="timeline-step"><div class="timeline-step-number">4</div><div class="timeline-step-title">Input Gathering</div><div class="timeline-step-desc">Collecting the customer's request</div></a>
+        <a href="#stage-5" class="timeline-step"><div class="timeline-step-number">5</div><div class="timeline-step-title">Chatbot</div><div class="timeline-step-desc">Automated support</div></a>
+        <a href="#stage-6" class="timeline-step"><div class="timeline-step-number">6</div><div class="timeline-step-title">Human Support</div><div class="timeline-step-desc">Live agent</div></a>
+        <a href="#stage-7" class="timeline-step"><div class="timeline-step-number">7</div><div class="timeline-step-title">Survey</div><div class="timeline-step-desc">NPS & CSAT</div></a>
+        <a href="#stage-8" class="timeline-step"><div class="timeline-step-number">8</div><div class="timeline-step-title">Ombudsman</div><div class="timeline-step-desc">Escalation & resolution</div></a>
+    </div>
+</section>
+
+<section class="stage" id="stage-1"><div class="stage-inner">
+    <div class="stage-content"><div class="stage-number">Stage 01</div><h2 class="stage-title">App Home</h2><p class="stage-description">The starting point of the journey. The customer opens the Nubank home screen with balance, shortcuts, and key features. From here, they decide to seek support.</p></div>
+    <div class="stage-visual"><div class="phone-mockup"><div class="phone-screen screen-home">
+        <div class="phone-notch"></div>
+        <div class="phone-header"><div class="greeting">Olá, Leonardo</div><div class="sub">Você é cliente Nubank</div></div>
+        <div class="balance-section"><div class="balance-label">Saldo em conta</div><div class="balance-value">R$ 1.356,98 <span class="balance-eye">👁</span></div></div>
+        <div class="shortcuts">
+            <div class="shortcut-item"><div class="shortcut-icon">◇</div><div class="shortcut-label">Área Pix</div></div>
+            <div class="shortcut-item"><div class="shortcut-icon">|||</div><div class="shortcut-label">Pagar</div></div>
+            <div class="shortcut-item"><div class="shortcut-icon">$</div><div class="shortcut-label">Empréstimo</div></div>
+            <div class="shortcut-item"><div class="shortcut-icon">📊</div><div class="shortcut-label">Investir</div></div>
+        </div>
+        <div class="card-section"><div class="card-label">Cartão de crédito</div><div class="card-value">R$ 2.430,00</div><div class="card-sub">Fatura atual</div></div>
+        <div class="phone-bottom-nav"><div class="nav-item active"><span class="nav-icon">🏠</span>Início</div><div class="nav-item"><span class="nav-icon">💳</span>Cartão</div><div class="nav-item"><span class="nav-icon">🛒</span>Shopping</div><div class="nav-item"><span class="nav-icon">💰</span>Ganhar</div></div>
+    </div></div></div>
+</div></section>
+
+<section class="stage" id="stage-2"><div class="stage-inner">
+    <div class="stage-content"><div class="stage-number">Stage 02</div><h2 class="stage-title">Service Hub</h2><p class="stage-description">The customer goes here to find answers to questions or problems. They can either browse ready-made content (FAQ) or reach the support team.</p>
+        <div class="insights-grid">
+            <div class="insight-card"><div class="insight-icon pain">🚪</div><div><div class="insight-label pain">Mass Market customers are more likely to abandon the FAQ</div><div class="insight-text">Lower digital fluency and difficulty with lengthy texts make customers feel insecure and escalate to human support. 39% give up because "the text was hard to understand."</div></div></div>
+            <div class="insight-card"><div class="insight-icon behavior">⚙️</div><div><div class="insight-label behavior">SuCo/HI: efficiency or nothing</div><div class="insight-text">These customers have high digital autonomy but expect efficient, personalized content. If the text feels generic, basic, or shallow, they feel their time is being wasted and immediately demand specialized human support.</div></div></div>
+            <div class="insight-card"><div class="insight-icon pain">🔧</div><div><div class="insight-label pain">The text informs but doesn't resolve</div><div class="insight-text">Across all segments, what drives customers away from self-service and toward human support is content that fails to resolve or is insufficient. Top reasons: urgency (78%), complexity (75%), and insufficient information (74%).</div></div></div>
+        </div>
+    </div>
+    <div class="stage-visual"><div class="phone-mockup"><div class="phone-screen screen-hub">
+        <div class="phone-notch"></div>
+        <div class="hub-header"><div class="hub-back">‹</div><div class="hub-title">Me Ajuda</div></div>
+        <div class="hub-greeting">Como podemos te ajudar hoje, Leonardo?</div>
+        <div class="hub-search">🔍 Qual é sua dúvida?</div>
+        <div class="hub-shortcuts">
+            <div class="hub-shortcut"><div class="hub-shortcut-icon">|||</div><div class="hub-shortcut-label">Pagar fatura</div></div>
+            <div class="hub-shortcut"><div class="hub-shortcut-icon">☰</div><div class="hub-shortcut-label">Resumo de faturas</div></div>
+            <div class="hub-shortcut"><div class="hub-shortcut-icon">⊕</div><div class="hub-shortcut-label">Parcelar compras</div></div>
+            <div class="hub-shortcut"><div class="hub-shortcut-icon">≡</div><div class="hub-shortcut-label">Ajustar limite</div></div>
+        </div>
+        <div class="hub-categories">
+            <div class="hub-category"><div><div class="hub-cat-name">Cartão de Crédito</div><div class="hub-cat-desc">Limite, gerenciar cartão...</div></div><div class="hub-cat-arrow">›</div></div>
+            <div class="hub-category"><div><div class="hub-cat-name">Empréstimos</div><div class="hub-cat-desc">Contratação, gerenciar...</div></div><div class="hub-cat-arrow">›</div></div>
+            <div class="hub-category"><div><div class="hub-cat-name">Pix</div><div class="hub-cat-desc">Pagamentos, chaves, limites...</div></div><div class="hub-cat-arrow">›</div></div>
+        </div>
+    </div></div></div>
+</div></section>
+
+<section class="stage" id="stage-3"><div class="stage-inner">
+    <div class="stage-content"><div class="stage-number">Stage 03</div><h2 class="stage-title">Channel Choice</h2><p class="stage-description">The moment when the customer chooses how they want to be served. They can tap "My Tickets" to continue an existing case, or go directly to chat. Currently, there is no entry point for phone contact in the app. If the customer wants to reach us by phone, they need to look up the contact number.</p>
+        <div class="insights-grid">
+            <div class="insight-card"><div class="insight-icon behavior">📱</div><div><div class="insight-label behavior">Chat dominates, but phone persists — especially among Mass Market</div><div class="insight-text">Chat is the preferred channel across all segments. The key difference is in Mass Market, where chat leads preference (60%) but phone retains relevance (37%). Older-generation and lower-income customers see the phone as the most reliable way to be heard and understood.</div></div></div>
+            <div class="insight-card"><div class="insight-icon behavior">📊</div><div><div class="insight-label behavior">The role of phone changes by segment</div><div class="insight-text">For Mass Market, it's a comfort channel — the first alternative when there's insecurity. For Super Core, it's an emergency channel: used in high-stress situations (e.g., scams, blocked accounts). For High Income, it's literally the last resort when chat fails.</div></div></div>
+            <div class="insight-card"><div class="insight-icon pain">🧭</div><div><div class="insight-label pain">Lack of guidance in choosing a channel</div><div class="insight-text">There is no guidance from us on which channel is best suited for each type of problem. This creates friction and suboptimal choices — the customer doesn't know that different channels work better for different situations.</div></div></div>
+        </div>
+    </div>
+    <div class="stage-visual"><div class="phone-mockup"><div class="phone-screen screen-channel" style="position:relative;background:#888;">
+        <div class="phone-notch" style="background:#888;"></div>
+        <div class="bg-blur" style="opacity:0.3;"><div style="height:200px;"></div></div>
+        <div class="overlay"><div class="overlay-title">Como você prefere receber o seu atendimento?</div>
+            <div class="channel-options">
+                <div class="channel-option"><div class="channel-icon">🔔</div><div class="channel-label">Meus Chamados</div></div>
+                <div class="channel-option"><div class="channel-icon">💬</div><div class="channel-label">Conversar pelo Chat</div></div>
+                <div class="channel-option"><div class="channel-icon">🤟</div><div class="channel-label">Atendimento em Libras</div></div>
+            </div>
+        </div>
+    </div></div></div>
+</div></section>
+
+<section class="stage" id="stage-4"><div class="stage-inner">
+    <div class="stage-content"><div class="stage-number">Stage 04</div><h2 class="stage-title">Input Gathering</h2><p class="stage-description">The system collects the customer's request. This can happen via free text ("type what you need") or pre-defined options. It's the moment when the customer translates their problem into words — and the quality of that translation impacts everything that follows.</p>
+        <div class="insights-grid">
+            <div class="insight-card"><div class="insight-icon pain">🎯</div><div><div class="insight-label pain">Cognitive load in describing the issue</div><div class="insight-text">Customers with lower education levels and digital fluency struggle to describe problems via text. The cognitive load of translating a complex situation into a short message generates anxiety and imprecise descriptions.</div></div></div>
+        </div>
+    </div>
+    <div class="stage-visual"><div class="phone-mockup"><div class="phone-screen screen-chat">
+        <div class="phone-notch"></div>
+        <div class="chat-header"><span class="chat-back">‹</span><span class="chat-header-title">Nova conversa</span></div>
+        <div class="chat-body">
+            <div style="text-align:center;font-size:11px;color:#999;margin:8px 0;">Hoje</div>
+            <div class="chat-bubble bot">Vamos lá! Para eu te ajudar mais rápido, digite o que você precisa em uma mensagem.</div>
+            <div class="chat-bubble user">Quero aumentar meu limite</div>
+        </div>
+        <div class="chat-input"><div class="chat-input-field">Digite sua mensagem</div><div class="chat-input-send">▸</div></div>
+    </div></div></div>
+</div></section>
+
+<section class="stage" id="stage-5"><div class="stage-inner">
+    <div class="stage-content"><div class="stage-number">Stage 05</div><h2 class="stage-title">Chatbot</h2><p class="stage-description">Automated support is the first line of interaction. For simple, low emotional-stress requests, the bot works well — customers value the speed and quick triage, especially Gen Y and Z. But when the situation demands listening or technical complexity, the limitations become apparent.</p>
+        <div class="insights-grid">
+            <div class="insight-card"><div class="insight-icon behavior">✅</div><div><div class="insight-label behavior">Works well for simple tasks</div><div class="insight-text">For basic queries and account adjustments, the bot is praised for its speed. Customers are willing to forgo human contact when the request is straightforward and carries low emotional weight.</div></div></div>
+            <div class="insight-card"><div class="insight-icon pain">💜</div><div><div class="insight-label pain">Falls short of the "Nubank standard"</div><div class="insight-text">When the interaction feels too sterile, it clashes with the warm, welcoming experience customers expect from the brand. This coldness creates friction and drives the search for a human agent.</div></div></div>
+            <div class="insight-card"><div class="insight-icon pain">🎯</div><div><div class="insight-label pain">Lack of comprehension and precision</div><div class="insight-text">Inaccurate automated messages are a major pain point. When the bot fails to understand the actual question, the customer receives generic responses that lead to exhaustion and frustration.</div></div></div>
+            <div class="insight-card"><div class="insight-icon pain">⏳</div><div><div class="insight-label pain">Delay in reaching human support</div><div class="insight-text">Customers report getting stuck in "loops" with bots before reaching a human agent. This increases stress, especially in emotionally charged situations.</div></div></div>
+            <div class="insight-card"><div class="insight-icon pain">😰</div><div><div class="insight-label pain">Empathy absent in crisis moments</div><div class="insight-text">In scam, fraud, or urgent failure situations, interacting with a generic bot amplifies anxiety. The customer enters "reactive mode" and needs emotional validation that the bot cannot provide.</div></div></div>
+        </div>
+    </div>
+    <div class="stage-visual"><div class="phone-mockup"><div class="phone-screen screen-chat">
+        <div class="phone-notch"></div>
+        <div class="chat-header"><span class="chat-back">‹</span><span class="chat-header-title">Nova conversa</span></div>
+        <div class="chat-body">
+            <div class="chat-bubble bot">Você pode aumentar suas chances de limite deixando seus dados atualizados e acompanhar seu NuScore.</div>
+            <div class="chat-bubble user">Preciso de R$ 1.000,00 de aumento hoje para pagar uma conta.</div>
+            <div class="chat-bubble bot">Você pode tentar conectar suas contas de outros bancos pelo Open Finance para garantir mais limite.</div>
+            <div class="chat-bubble user">Não tenho outra conta</div>
+            <div class="chat-bubble bot">Eu já chamei uma pessoa da nossa equipe para dar continuidade no seu atendimento.</div>
+        </div>
+        <div class="chat-input"><div class="chat-input-field">Digite sua mensagem</div><div class="chat-input-send">▸</div></div>
+    </div></div></div>
+</div></section>
+
+<section class="stage" id="stage-6"><div class="stage-inner">
+    <div class="stage-content"><div class="stage-number">Stage 06</div><h2 class="stage-title">Human Support</h2><p class="stage-description">The customer reaches a human agent when self-service and/or the chatbot didn't resolve the issue, or when the situation requires special care.</p>
+        <div class="channel-tabs"><div class="channel-tab active" onclick="switchChannel('chat')">💬 Chat</div><div class="channel-tab" onclick="switchChannel('phone')">📞 Phone</div></div>
+        <div id="channel-chat" class="channel-content active">
+            <div class="insight-card"><div class="insight-icon behavior">⚡</div><div><div class="insight-label behavior">Nubank's default channel</div><div class="insight-text">Chat is the go-to channel — customers seek speed, objectivity, and clear written instructions. Ideal for everyday problems and situations where they want to avoid friction.</div></div></div>
+            <div class="insight-card"><div class="insight-icon pain">📋</div><div><div class="insight-label pain">Generic responses</div><div class="insight-text">Copy-paste responses are one of the biggest complaints — the customer feels like they're talking to a wall.</div></div></div>
+            <div class="insight-card"><div class="insight-icon pain">🧩</div><div><div class="insight-label pain">Inability to handle more complex requests</div><div class="insight-text">Frustration increases when the agent can't resolve more complex situations or when the customer feels there's no autonomy to actually solve the problem.</div></div></div>
+        </div>
+        <div id="channel-phone" class="channel-content">
+            <div class="insight-card"><div class="insight-icon behavior">🆘</div><div><div class="insight-label behavior">Emergency and empathy channel</div><div class="insight-text">Customers call when facing emergencies (scams, fraud, blocked accounts) and need immediate emotional validation. Older generations prefer phone as a guarantee of being understood.</div></div></div>
+            <div class="insight-card"><div class="insight-icon pain">⏳</div><div><div class="insight-label pain">Bureaucracy and slowness</div><div class="insight-text">The phone is perceived by customers as unproductive and slow, mainly due to past experiences with other companies involving long wait times and the dreaded hold music.</div></div></div>
+            <div class="insight-card"><div class="insight-icon pain">🔀</div><div><div class="insight-label pain">Automated menus and transfers</div><div class="insight-text">Navigating IVR menus to reach a human is a major friction point. Constant transfers between agents increase anxiety and the feeling that the problem is being ignored.</div></div></div>
+        </div>
+    </div>
+    <div class="stage-visual"><div class="phone-mockup"><div class="phone-screen screen-chat screen-human">
+        <div class="phone-notch"></div>
+        <div class="chat-header"><span class="chat-back">‹</span><span class="chat-header-title">Nova conversa</span></div>
+        <div class="chat-body">
+            <div class="chat-bubble agent"><div class="agent-name">Jéssica P.</div>Olá Gabriela, como posso te ajudar hoje?</div>
+            <div class="chat-bubble user">Preciso de R$ 1.000,00 a mais de limite para fazer a compra de uma cama nova para meu filho.</div>
+            <div class="chat-bubble agent"><div class="agent-name">Jéssica P.</div>Entendo que você esteja precisando de um limite extra. Não temos nenhuma oferta no cartão de crédito. No entanto, você tem esse valor liberado para empréstimo pessoal.</div>
+            <div class="chat-bubble user">Obrigado, vou ver mais dentro do app.</div>
+            <div class="chat-bubble agent"><div class="agent-name">Jéssica P.</div>Ok, estarei encerrando o seu atendimento. Tenha um ótimo dia!</div>
+            <div style="text-align:center;font-size:11px;color:#999;">Atendimento encerrado</div>
+        </div>
+    </div></div></div>
+</div></section>
+
+<section class="stage" id="stage-7"><div class="stage-inner">
+    <div class="stage-content"><div class="stage-number">Stage 07</div><h2 class="stage-title">Survey</h2><p class="stage-description">After the service interaction, the customer evaluates their experience through NPS and resolution surveys.</p></div>
+    <div class="stage-visual"><div class="phone-mockup"><div class="phone-screen screen-survey">
+        <div class="phone-notch"></div>
+        <div class="survey-content">
+            <div class="survey-title">Conforme seu último atendimento, o quanto você recomendaria o Nubank para um amigo?</div>
+            <div class="nps-grid"><div class="nps-btn">0</div><div class="nps-btn">1</div><div class="nps-btn">2</div><div class="nps-btn">3</div><div class="nps-btn">4</div><div class="nps-btn">5</div><div class="nps-btn">6</div><div class="nps-btn selected">7</div><div class="nps-btn">8</div><div class="nps-btn">9</div><div class="nps-btn">10</div><div class="nps-btn" style="visibility:hidden;"></div></div>
+            <div class="nps-labels"><span>0 - Nada provável</span><span>10 - Muito provável</span></div>
+            <div style="text-align:left;margin-bottom:8px;font-size:13px;color:#333;">O que te levou a escolher essa nota?</div>
+            <div style="text-align:left;padding:12px;background:#f5f5f5;border-radius:8px;font-size:13px;color:#999;margin-bottom:20px;">O atendimento foi...</div>
+            <div class="survey-btn">Enviar</div>
+        </div>
+    </div></div></div>
+</div></section>
+
+<section class="stage" id="stage-8"><div class="stage-inner">
+    <div class="stage-content"><div class="stage-number">Stage 08</div><h2 class="stage-title">Ombudsman</h2><p class="stage-description">The last resort for customers whose problems were not resolved previously. By the time they reach this point, frustration levels are already high due to unsuccessful interactions with customer service.</p>
+        <div class="insights-grid">
+            <div class="insight-card"><div class="insight-icon pain">🔄</div><div><div class="insight-label pain">Repeating the story</div><div class="insight-text">The biggest pain point is having to explain the same problem multiple times, to different agents, across different interactions. The lack of continuity between CX and the Ombudsman team worsens the feeling of neglect.</div></div></div>
+            <div class="insight-card"><div class="insight-icon pain">📭</div><div><div class="insight-label pain">Lack of updates</div><div class="insight-text">The absence of proactive updates on case progress generates anxiety — especially when deadlines are missed or communicated vaguely.</div></div></div>
+            <div class="insight-card"><div class="insight-icon pain">🤖</div><div><div class="insight-label pain">Standardized apologies</div><div class="insight-text">Repetitive, robotic messages give the impression that nobody is actually taking responsibility for the problem.</div></div></div>
+        </div>
+    </div>
+    <div class="stage-visual"><div class="phone-mockup"><div class="phone-screen screen-ouvidoria">
+        <div class="phone-notch"></div>
+        <div class="ouvidoria-content">
+            <div class="ouvidoria-icon">⚠️</div>
+            <div class="ouvidoria-title">Resolva com a Ouvidoria</div>
+            <div class="ouvidoria-desc">O chat da Ouvidoria está disponível para o seu caso.<br><br>Nosso time de especialistas vai analisar e buscar uma solução para você.</div>
+            <div class="ouvidoria-btn">Resolver com Ouvidoria</div>
+            <div class="ouvidoria-btn-secondary">Fechar</div>
+        </div>
+    </div></div></div>
+</div></section>
+
+<footer class="footer">
+    <div class="footer-logo"><svg width="48" height="48" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="#820AD1"/><text x="7" y="23" font-size="18" font-weight="bold" fill="white" font-family="Inter, sans-serif">Nu</text></svg></div>
+    <p>Mass Market Customer Journey — Nubank Customer Service</p>
+    <p style="margin-top:8px;color:var(--nu-gray-700);">Internal material for customer experience mapping</p>
+    <div class="footer-note">CX Research & Design · Nubank · 2026</div>
+</footer>
+
+<script>
+    const observer = new IntersectionObserver((entries) => { entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); }); }, { root: null, rootMargin: '0px 0px -100px 0px', threshold: 0.1 });
+    document.querySelectorAll('.stage-content, .stage-visual, .fade-in').forEach(el => observer.observe(el));
+
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('.nav-links a');
+    window.addEventListener('scroll', () => {
+        let current = '';
+        sections.forEach(s => { if (window.scrollY >= s.offsetTop - 200) current = s.getAttribute('id'); });
+        navLinks.forEach(l => { l.classList.remove('active'); if (l.getAttribute('href') === '#' + current) l.classList.add('active'); });
+        document.querySelector('.nav').style.background = window.scrollY > 100 ? 'rgba(17,17,17,0.95)' : 'rgba(17,17,17,0.85)';
+    });
+
+    function switchChannel(channel) { document.querySelectorAll('.channel-tab').forEach(t => t.classList.remove('active')); document.querySelectorAll('.channel-content').forEach(c => c.classList.remove('active')); document.getElementById('channel-' + channel).classList.add('active'); event.target.classList.add('active'); }
+    document.querySelectorAll('.timeline-step').forEach(s => { s.style.textDecoration = 'none'; s.style.color = 'inherit'; });
+</script>
+</body>
+</html>
